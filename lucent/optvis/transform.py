@@ -58,7 +58,7 @@ def random_scale(scales):
         upsample = torch.nn.Upsample(
             size=scale_shape, mode="bilinear", align_corners=True
         )
-        return F.pad(upsample(image_t), [pad_y, pad_x] * 2)
+        return F.pad(upsample(image_t), [int(pad_y), int(pad_x)] * 2)
 
     return inner
 
