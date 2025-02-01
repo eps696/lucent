@@ -20,7 +20,7 @@ import torch.nn.functional as F
 from torchvision.transforms import Normalize
 import numpy as np
 import kornia
-from kornia.geometry.transform import translate
+from kornia.geometry.transform import translate, rotate
 
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -67,15 +67,10 @@ def random_rotate(angles, units="degrees"):
         # kornia takes degrees
         alpha = _rads2angle(np.random.choice(angles), units)
         angle = torch.ones(b) * alpha
-        if KORNIA_VERSION < '0.4.0':
-            scale = torch.ones(b)
-        else:
-            scale = torch.ones(b, 2)
         center = torch.ones(b, 2)
         center[..., 0] = (image_t.shape[3] - 1) / 2
         center[..., 1] = (image_t.shape[2] - 1) / 2
-        M = kornia.get_rotation_matrix2d(center, angle, scale).to(device)
-        rotated_image = kornia.warp_affine(image_t.float(), M, dsize=(h, w))
+        rotated_image = rotate(image_t.float(), angle.to(image_t.device), center.to(image_t.device))
         return rotated_image
 
     return inner
